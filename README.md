@@ -9,3 +9,4 @@ We compare structural layout of words in Wordnet based on similarity and other m
 Data that is used in this project is from https://www.montana.edu/attmemlab/spp.html where we process the lexical decision and naming tasks of people.
 Data from wordnet is used as the other side of the comparison. 
 
+Major data sets used are all naming subjects.xlsx and NT_trials_all_sims_with_NaNs.csv with sppanalysis_cleaned.ipynb being the main notebook for analysis. Everything should be reproducible. 

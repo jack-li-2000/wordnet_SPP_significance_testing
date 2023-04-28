@@ -122,3 +122,100 @@ def get_descrip(less, more):
                                 'acc_std': [less['accuracy'].std(), more['accuracy'].std()]},\
                               index=['less related','more related'])
 
+def uni_wordpair(data, rating_type):
+    """
+    gets the average results for each target-prime pair and returns the averaged result
+
+    rating_type: str - name of rating we want to use. ex. 'Path Similarity'
+    
+    data: pandas frame for data we're trying to get info from. ex. isi50 or isi1050
+        takes the output of data_processing()
+
+    example usage: 
+    wordpair_50 = uni_wordpair(isi50, 'Path Similarity')
+    wordpair_1050 = uni_wordpair(isi1050, 'Path Similarity'')
+    """
+
+    target_uni = data['target'].unique()
+
+    avg_data = pd.DataFrame(columns = ['target','prime','RT', 'RT_std','acc', 'acc_std','path sim']) 
+
+
+    for target in target_uni:
+        
+        subset_upper = data[data['target'] == target]
+
+        prime_uni = subset_upper['prime'].unique()
+
+        for prime in prime_uni:
+
+            subset_lower = subset_upper[subset_upper['prime'] == prime]
+
+            row = {'target': [target],'prime': [prime],\
+                'RT': [subset_lower['RT'].mean()], \
+                    'RT_std': [subset_lower['RT'].std()], 'acc': [subset_lower['accuracy'].mean()], 'acc_std': [subset_lower['accuracy'].std()], \
+                        rating_type: [subset_lower[rating_type].iloc[0]]}
+
+            row_df = pd.DataFrame(row)
+            avg_data = pd.concat([avg_data, row_df], axis=0, ignore_index=True)
+
+    return avg_data
+
+def get_sim(avg_data, isi, rating_type):
+    """
+    helper function for plotting
+
+    assumes the rating type data does not have all unique results 
+    e.g. the path similarity rating has only around 20 total ratings for all of the data
+    """
+
+    sim_uni = avg_data[rating_type].unique()
+    sim_uni.sort()
+
+    rt = []
+    rt_std = []
+    acc = []
+    acc_std = []
+
+    for s in sim_uni:
+        sim_data = avg_data[avg_data[rating_type] == s]
+
+        rt.append(sim_data['RT'].mean())
+        rt_std.append(sim_data['RT_std'].mean())
+        acc.append(sim_data['acc'].mean())
+        acc_std.append(sim_data['acc_std'].mean())
+    return [rt, rt_std, acc, acc_std, sim_uni, rating_type + isi]
+
+
+def make_plots(path_50, path_1050):
+    """
+    takes the output of get_sim as input. 
+
+    ex. 
+
+    path_50 = get_sim(wordpair_50, '50')
+    path_1050 = get_sim(wordpair_1050, '1050')
+    """
+
+    types = ['RT','RT_std','acc','acc_std']
+    axis = ['ms','ms','%','%']
+
+
+    for i in range(4):
+        plt.figure().set_figwidth(10)
+        plt.plot(path_50[4], path_50[i])
+        plt.title(path_50[5] + ' ' + types[i])
+        plt.xlabel('similarity rating')
+        plt.ylabel(axis[i])
+        plt.show()
+        plt.savefig(path_50[5] + ' ' + types[i] + '.png')
+
+    for i in range(4):
+        plt.figure().set_figwidth(10)
+        plt.plot(path_1050[4], path_1050[i])
+        plt.title(path_1050[5] + ' ' + types[i])
+        plt.xlabel('similarity rating')
+        plt.ylabel(axis[i])
+        plt.show()
+        plt.savefig(path_1050[5] + ' ' + types[i] + '.png')
+

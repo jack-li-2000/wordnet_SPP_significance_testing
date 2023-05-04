@@ -26,6 +26,7 @@ Dog and book have a path similarity of 0.0714, because they are connected by 13 
 in the WordNet hierarchy
 """
 
+
 def data_processing(wordnet_sim, raw_data):
     """
     function cleans up data and gets isi from spp to join with wordnet table
@@ -36,15 +37,18 @@ def data_processing(wordnet_sim, raw_data):
     """
 
     data_isi = raw_data[['Session', 'isi', 'prime', 'target', 'target.RT',
-       'target.ACC']].dropna()
+                         'target.ACC']].dropna()
 
     data_isi['prime'] = [word.lower() for word in data_isi['prime']]
 
-    data_isi = data_isi.rename(columns={'target.RT': 'RT', 'target.ACC': 'accuracy'})
+    data_isi = data_isi.rename(
+        columns={'target.RT': 'RT', 'target.ACC': 'accuracy'})
 
     # merge data to get isi and session
-    data = pd.merge(wordnet_sim, data_isi, how='inner', on=['prime','target', 'RT', 'accuracy'])
-    data = data.drop_duplicates(subset=['prime','target','RT','accuracy','Session'])
+    data = pd.merge(wordnet_sim, data_isi, how='inner', on=[
+                    'prime', 'target', 'RT', 'accuracy'])
+    data = data.drop_duplicates(
+        subset=['prime', 'target', 'RT', 'accuracy', 'Session'])
 
     # split data into 50ms lag and 1050ms lag
     isi_data = data.groupby(['isi'])
@@ -52,6 +56,7 @@ def data_processing(wordnet_sim, raw_data):
     isi1050 = isi_data.get_group(1050)
 
     return isi50, isi1050
+
 
 def sim_split(rating_type, upper, lower):
     """
@@ -83,6 +88,7 @@ def sim_split(rating_type, upper, lower):
 
     return pathsim_50_0, pathsim_50_1, pathsim_1050_0, pathsim_1050_1
 
+
 def get_tscore(less_related, more_related):
     """
     this function uses the t-test to compare between less similar word pairings with more similar 
@@ -104,6 +110,7 @@ def get_tscore(less_related, more_related):
 
     return rt_sig, acc_sig
 
+
 def get_descrip(less, more):
     """
     gets description of dataset. returns mean and standard deviation (std) of the data. 
@@ -116,50 +123,40 @@ def get_descrip(less, more):
     returned frame contains reaction time and accuracy data
     """
 
-    return pd.DataFrame({'RT_mean':[less['RT'].mean(), more['RT'].mean()], \
-                         'RT_std': [less['RT'].std(), more['RT'].std()], \
-                            'acc_mean': [less['accuracy'].mean(), more['accuracy'].mean()], \
-                                'acc_std': [less['accuracy'].std(), more['accuracy'].std()]},\
-                              index=['less related','more related'])
-
-def uni_wordpair(data, rating_type):
-    """
-    gets the average results for each target-prime pair and returns the averaged result
-
-    rating_type: str - name of rating we want to use. ex. 'Path Similarity'
-    
-    data: pandas frame for data we're trying to get info from. ex. isi50 or isi1050
-        takes the output of data_processing()
-
-    example usage: 
-    wordpair_50 = uni_wordpair(isi50, 'Path Similarity')
-    wordpair_1050 = uni_wordpair(isi1050, 'Path Similarity'')
-    """
-
-    target_uni = data['target'].unique()
-
-    avg_data = pd.DataFrame(columns = ['target','prime','RT', 'RT_std','acc', 'acc_std','path sim']) 
+    return pd.DataFrame({'RT_mean': [less['RT'].mean(), more['RT'].mean()],
+                         'RT_std': [less['RT'].std(), more['RT'].std()],
+                         'acc_mean': [less['accuracy'].mean(), more['accuracy'].mean()],
+                         'acc_std': [less['accuracy'].std(), more['accuracy'].std()]},
+                        index=['less related', 'more related'])
 
 
-    for target in target_uni:
-        
-        subset_upper = data[data['target'] == target]
+def uni_wordpair(data: pd.DataFrame, rating_type: str) -> pd.DataFrame:
+    # """
+    # gets the average results for each target-prime pair and returns the averaged result
 
-        prime_uni = subset_upper['prime'].unique()
+    # rating_type: str - name of rating we want to use. ex. 'Path Similarity'
 
-        for prime in prime_uni:
+    # data: pandas frame for data we're trying to get info from. ex. isi50 or isi1050
+    #     takes the output of data_processing()
 
-            subset_lower = subset_upper[subset_upper['prime'] == prime]
+    # example usage: 
+    # wordpair_50 = uni_wordpair(isi50, 'Path Similarity')
+    # wordpair_1050 = uni_wordpair(isi1050, 'Path Similarity'')
+    # """
+    agg_funcs = {
+        'RT': ['mean', 'std'],
+        'accuracy': ['mean', 'std'],
+        rating_type: 'first',
+    }
+    grouped = data.groupby(['target', 'prime']).agg(agg_funcs)
 
-            row = {'target': [target],'prime': [prime],\
-                'RT': [subset_lower['RT'].mean()], \
-                    'RT_std': [subset_lower['RT'].std()], 'acc': [subset_lower['accuracy'].mean()], 'acc_std': [subset_lower['accuracy'].std()], \
-                        rating_type: [subset_lower[rating_type].iloc[0]]}
+    grouped.reset_index(inplace=True)
+    grouped.columns = ['target', 'prime',
+                       'RT', 'RT_std',
+                       'acc', 'acc_std', rating_type]
 
-            row_df = pd.DataFrame(row)
-            avg_data = pd.concat([avg_data, row_df], axis=0, ignore_index=True)
+    return grouped
 
-    return avg_data
 
 def get_sim(avg_data, isi, rating_type):
     """
@@ -197,9 +194,8 @@ def make_plots(path_50, path_1050):
     path_1050 = get_sim(wordpair_1050, '1050')
     """
 
-    types = ['RT','RT_std','acc','acc_std']
-    axis = ['ms','ms','%','%']
-
+    types = ['RT', 'RT_std', 'acc', 'acc_std']
+    axis = ['ms', 'ms', '%', '%']
 
     for i in range(4):
         plt.figure().set_figwidth(10)
@@ -218,4 +214,3 @@ def make_plots(path_50, path_1050):
         plt.ylabel(axis[i])
         plt.show()
         plt.savefig(path_1050[5] + ' ' + types[i] + '.png')
-

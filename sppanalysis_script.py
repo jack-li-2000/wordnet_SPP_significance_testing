@@ -210,8 +210,9 @@ def make_plots(path_50, path_1050):
         plt.title(path_50[5] + ' ' + types[i])
         plt.xlabel('similarity rating')
         plt.ylabel(axis[i])
-        plt.show()
+        # plt.show()
         plt.savefig(path_50[5] + ' ' + types[i] + '.png')
+        plt.close()
 
     for i in range(4):
         slope, intercept = np.polyfit(path_1050[4], path_1050[i], 1)
@@ -224,5 +225,6 @@ def make_plots(path_50, path_1050):
         plt.title(path_1050[5] + ' ' + types[i])
         plt.xlabel('similarity rating')
         plt.ylabel(axis[i])
-        plt.show()
+        # plt.show()
         plt.savefig(path_1050[5] + ' ' + types[i] + '.png')
+        plt.close()

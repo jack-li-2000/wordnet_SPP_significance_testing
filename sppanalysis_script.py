@@ -58,7 +58,7 @@ def data_processing(wordnet_sim, raw_data):
     return isi50, isi1050
 
 
-def sim_split(rating_type, upper, lower):
+def sim_split(isi50, isi1050, rating_type, upper, lower):
     """
     to compare the difference between less related and more related words, we can split the dataframes 
     using a threshold. if we use rating_type == pathsim and set upper = 0.8 and lower = 0.2, we are 
@@ -79,7 +79,7 @@ def sim_split(rating_type, upper, lower):
     isi50 = isi50.dropna(subset=[rating_type])
     isi1050 = isi1050.dropna(subset=[rating_type])
 
-    # find different path sim values
+    # find different rating_type - got too lazy and didnt change pathsim to rating_type_sim
     pathsim_50_0 = isi50[isi50[rating_type] < lower]
     pathsim_50_1 = isi50[isi50[rating_type] >= upper]
 
@@ -143,6 +143,8 @@ def uni_wordpair(data: pd.DataFrame, rating_type: str) -> pd.DataFrame:
     # wordpair_50 = uni_wordpair(isi50, 'Path Similarity')
     # wordpair_1050 = uni_wordpair(isi1050, 'Path Similarity'')
     # """
+
+    data = data.dropna(subset=[rating_type])
     agg_funcs = {
         'RT': ['mean', 'std'],
         'accuracy': ['mean', 'std'],
@@ -198,8 +200,13 @@ def make_plots(path_50, path_1050):
     axis = ['ms', 'ms', '%', '%']
 
     for i in range(4):
+        slope, intercept = np.polyfit(path_50[4], path_50[i], 1)
         plt.figure().set_figwidth(10)
         plt.plot(path_50[4], path_50[i])
+        axes = plt.gca()
+        x_vals = np.array(axes.get_xlim())
+        y_vals = intercept + slope*x_vals
+        plt.plot(x_vals,y_vals,'--')
         plt.title(path_50[5] + ' ' + types[i])
         plt.xlabel('similarity rating')
         plt.ylabel(axis[i])
@@ -207,8 +214,13 @@ def make_plots(path_50, path_1050):
         plt.savefig(path_50[5] + ' ' + types[i] + '.png')
 
     for i in range(4):
+        slope, intercept = np.polyfit(path_1050[4], path_1050[i], 1)
         plt.figure().set_figwidth(10)
         plt.plot(path_1050[4], path_1050[i])
+        axes = plt.gca()
+        x_vals = np.array(axes.get_xlim())
+        y_vals = intercept + slope*x_vals
+        plt.plot(x_vals,y_vals,'--')
         plt.title(path_1050[5] + ' ' + types[i])
         plt.xlabel('similarity rating')
         plt.ylabel(axis[i])

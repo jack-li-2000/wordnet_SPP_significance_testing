@@ -89,7 +89,7 @@ def sim_split(isi50, isi1050, rating_type, upper, lower):
     return pathsim_50_0, pathsim_50_1, pathsim_1050_0, pathsim_1050_1
 
 
-def get_tscore(less_related, more_related):
+def get_tscore(isi50less, isi50more, isi1050less, isi1050more):
     """
     this function uses the t-test to compare between less similar word pairings with more similar 
     word pairings to see if there's a significant difference between the 2. pvalue < 0.05 means 
@@ -105,10 +105,15 @@ def get_tscore(less_related, more_related):
     returns t_test score for reaction time and accuracy.
     """
 
-    rt_sig = sp.ttest_ind(less_related['RT'], more_related['RT'])
-    acc_sig = sp.ttest_ind(less_related['accuracy'], more_related['accuracy'])
+    rt_sig50 = sp.ttest_ind(isi50less['RT'], isi50more['RT'])
+    acc_sig50 = sp.ttest_ind(isi50less['accuracy'], isi50more['accuracy'])
 
-    return rt_sig, acc_sig
+    rt_sig1050 = sp.ttest_ind(isi1050less['RT'], isi1050more['RT'])
+    acc_sig1050 = sp.ttest_ind(isi1050less['accuracy'], isi1050more['accuracy'])
+
+
+
+    return pd.DataFrame({'Reaction Time': [rt_sig50[1], rt_sig1050[1]], 'Accuracy': [acc_sig50[1], acc_sig1050[1]]}, index=['isi_50ms', 'isi_1050ms'])
 
 
 def get_descrip(less, more):

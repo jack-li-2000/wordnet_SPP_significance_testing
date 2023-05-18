@@ -1,4 +1,4 @@
-# COG403_final
+# wordnet spp significance testing
 processing, analysis of wordnet data vs SPP data.
 
 The purpose of this project is to determine if similarity in wordnet is correlated to similarity of word relations of humans. 

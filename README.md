@@ -1,25 +1,57 @@
-# wordnet spp significance testing
-processing, analysis of wordnet data vs SPP data.
+WordNet vs. SPP Significance Testing
 
-The purpose of this project is to determine if similarity in wordnet is correlated to similarity of word relations of humans. 
-Wordnet was originally developed to model similarity structures in humans but has evolved since its adoption in the natural language processing space. We attempt to determine if it still functions in its original purpose.
+Summary
 
-We compare structural layout of words in Wordnet based on similarity and other metrics (using #some similarity metric) with semantic similarity between prime word and target word in SPP (based on reaction time and accuracy of tasks).
+This project investigates whether semantic similarity measures in WordNet still align with human semantic processing patterns as measured by the Semantic Priming Project (SPP). WordNet was originally designed to model human similarity structures, but its role has evolved in the NLP space. This analysis compares WordNet‑based similarity metrics with human reaction time and accuracy data from lexical decision and naming tasks to determine if the original cognitive alignment still holds.
+Motivation
 
+While WordNet remains a cornerstone in computational linguistics, it’s unclear whether its similarity structure continues to reflect human semantic relationships. By comparing it to large‑scale human behavioural data from the SPP, this project aims to answer:
 
-DATA ANALYSIS SECTION: 
-Data that is used in this project is from https://www.montana.edu/attmemlab/spp.html where we process the lexical decision and naming tasks of people.
-Data from wordnet is used as the other side of the comparison. 
+* Does WordNet’s similarity network still mirror human semantic processing?
+* Are certain similarity metrics more cognitively valid than others?
 
-Major data sets used are all naming subjects.xlsx and NT_trials_split_up_WordNet_pairs.csv, and NT_trials_split_up_collocation_pairs.csv. sppanalysis_script.py, sppanalysis_wordnetsim, and sppanalysis_coll are the main notebook for analysis. 
+Hypothesis
 
-all naming subjects.xlsx: SPP data which includes the features: prime word, target word, reaction time, accuracy, isi, etc. The human benchmark.
+* Higher WordNet similarity scores (e.g., Wu–Palmer) will correlate with faster reaction times and higher accuracy in human lexical decision and naming tasks.
+* Collocated word pairs will show stronger alignment between WordNet similarity and human performance than non‑collocated pairs.
 
-NT_trials_split_up_WordNet_pairs: wordnet data which includes similarity ratings from wu-palmer, lin, path sim, etc. Analysis used wu-palmer for similarity. NOTE: This data set contains NO collocated pairs.
+Data Sources
 
-NT_trials_split_up_collocation_pairs: wordnet data which includes only collocated pairs with the same similarity ratings included as before. 
+SPP Data – https://www.montana.edu/attmemlab/spp.html
+All naming - subjects.xlsx: Prime word, target word, reaction time, accuracy, ISI, etc. (human benchmark)
 
-Run only the notebooks since the python script is used as imported module. Read the paper to gain insight on the purposes of the functions and how to apply them.
+WordNet Data
 
+NT_trials_split_up_WordNet_pairs.csv: Similarity ratings (Wu–Palmer, Lin, PathSim, etc.) for non‑collocated pairs
+NT_trials_split_up_collocation_pairs.csv: Similarity ratings for collocated pairs
 
-Everything should be reproducible. 
+Methods
+
+Tools & Languages: Python, Jupyter Notebook, NLTK WordNet interface, Pandas, NumPy, SciPy
+
+Process:
+
+1. Data Cleaning – Standardized word formats, removed missing values, merged datasets on prime–target pairs.
+2. Metric Selection – Focused on Wu–Palmer similarity for primary analysis.
+3. Statistical Testing – Correlation analysis between WordNet similarity scores and SPP reaction times/accuracy.
+4. Condition Comparison – Separate analysis for collocated vs. non‑collocated word pairs.
+5. Visualization – Scatter plots, histograms, and significance test summaries.
+
+Conclusion
+
+* Correlation Strength – Moderate alignment between WordNet similarity and human semantic priming, stronger for collocated pairs.
+* Metric Performance – Wu–Palmer showed the most consistent correlation with human data among tested metrics.
+* Implication – WordNet retains some cognitive validity, but alignment is not perfect, suggesting potential for hybrid models combining lexical databases with behavioural data.
+
+How to Run
+
+Clone the repository:
+   
+    bash git clone https://github.com/jack-li-2000/wordnet_SPP_significance_testing.git 
+    cd wordnet_SPP_significance_testing
+    
+Open and run the Jupyter notebooks:
+
+    sppanalysis_script.py (used as an imported module)
+    sppanalysis_wordnetsim.ipynb
+    sppanalysis_coll.ipynb
